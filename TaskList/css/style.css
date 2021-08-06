@@ -1,0 +1,13 @@
+.bg-custom {
+  background-color: #0f0782;
+  color: #e0e0de;
+  opacity: 0.7;
+}
+
+li {
+  cursor: pointer;
+}
+
+li:hover {
+  background-color: rosybrown;
+}
