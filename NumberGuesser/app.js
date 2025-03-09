@@ -1,96 +1,90 @@
 // Set minimum and maximum
-const minNumber = 1;
-const maxNumber = 10;
+const minNumber = 1,
+  maxNumber = 10;
+let randomNumber, guessCount, isGameOver;
 
-// Random number and guess count
-let randomNumber = generateRandom(minNumber, maxNumber);
-let guessCount = 3;
-let isGameOver = false;
-
-// Get the elements from UI
+// Get UI elements
 const minNumUI = document.querySelector(".min-num");
 const maxNumUI = document.querySelector(".max-num");
 const guessInputUI = document.getElementById("guess-input");
 const guessSubmitUI = document.getElementById("guess-submit");
 const showMessageUI = document.querySelector(".message");
 
-// Set the value to UI for min and max number
-minNumUI.textContent = minNumber;
-maxNumUI.textContent = maxNumber;
-
-// Listen for guess submit
-guessSubmitUI.addEventListener("click", (e) => {
-  e.preventDefault();
-
-  if (isGameOver) return playAgain();
-
-  const inputNumber = parseInt(guessInputUI.value);
-  guessInputUI.value = "";
-
-  // Check if the number is valid
-  if (isNaN(inputNumber)) return showError("Please check your input!");
-
-  if (checkGuess(inputNumber)) {
-    isGameOver = true;
-    guessSubmitUI.value = "Play Again";
-    return showSuccess("Yeee! Your guess is right.");
-  } else {
-    if (guessCount == 0) {
-      isGameOver = true;
-      guessSubmitUI.value = "Play Again";
-      return showError("Sorry! You're out of guess. GAME OVER!");
-    }
-    showWarning(
-      `You have ${guessCount} guess${guessCount > 1 ? "es" : ""} left!`
-    );
-  }
-});
-
-// Show Error
-function showError(msg) {
-  guessInputUI.style.borderColor = "red";
-  showMessageUI.style.color = "red";
-  showMessageUI.textContent = msg;
-}
-
-// Show Success
-function showSuccess(msg) {
-  guessInputUI.style.borderColor = "green";
-  showMessageUI.style.color = "green";
-  showMessageUI.textContent = msg;
-}
-
-// Show Warning
-function showWarning(msg) {
-  guessInputUI.style.borderColor = "#3f5e51";
-  showMessageUI.style.color = " #3f5e51";
-  showMessageUI.textContent = msg;
-}
-
-// Generate random Number
-function generateRandom(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-// Play Again
-function playAgain() {
-  isGameOver = false;
-  guessCount = 3;
-  guessInputUI.style.borderColor = "#D1D1D1";
+// Initialize game
+function initGame() {
   randomNumber = generateRandom(minNumber, maxNumber);
-  showMessageUI.textContent = "";
+  guessCount = 3;
+  isGameOver = false;
+  guessInputUI.disabled = false;
+  guessInputUI.style.borderColor = "#D1D1D1";
+  showMessage("");
   guessSubmitUI.value = "Submit";
   guessInputUI.value = "";
 }
 
-// Check the guess
-function checkGuess(number) {
-  if (number === randomNumber) {
-    return true;
-  } else {
-    guessCount -= 1;
-    return false;
+// Set UI values
+[minNumUI.textContent, maxNumUI.textContent] = [minNumber, maxNumber];
+initGame();
+
+// Event Listener
+guessSubmitUI.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (isGameOver) return initGame();
+
+  const inputNumber = parseInt(guessInputUI.value);
+  guessInputUI.value = "";
+
+  if (!isValidNumber(inputNumber)) {
+    return showMessage(
+      `Please enter a number between ${minNumber} and ${maxNumber}`,
+      "red"
+    );
   }
+
+  processGuess(inputNumber);
+});
+
+// Validate number
+function isValidNumber(num) {
+  return !isNaN(num) && num >= minNumber && num <= maxNumber;
+}
+
+// Process guess
+function processGuess(number) {
+  if (number === randomNumber) {
+    endGame(true, `${number} is correct, YOU WIN!`);
+  } else {
+    guessCount--;
+    guessCount === 0
+      ? endGame(
+          false,
+          `Game Over, you lost. The correct number was ${randomNumber}`
+        )
+      : showMessage(
+          `Guess is not correct, ${guessCount} guess${
+            guessCount > 1 ? "es" : ""
+          } left`,
+          "red"
+        );
+  }
+}
+
+// Show message
+function showMessage(msg, color = "black") {
+  showMessageUI.style.color = color;
+  showMessageUI.textContent = msg;
+}
+
+// Generate random number
+function generateRandom(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// End game
+function endGame(isWon, msg) {
+  isGameOver = true;
+  guessInputUI.disabled = true;
+  guessInputUI.style.borderColor = isWon ? "green" : "red";
+  showMessage(msg, isWon ? "green" : "red");
+  guessSubmitUI.value = "Play Again";
 }
