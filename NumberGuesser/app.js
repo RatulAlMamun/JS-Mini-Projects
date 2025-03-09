@@ -1,6 +1,6 @@
 // Set minimum and maximum
 const minNumber = 1;
-const maxNumber = 100;
+const maxNumber = 10;
 
 // Random number and guess count
 let randomNumber = generateRandom(minNumber, maxNumber);
